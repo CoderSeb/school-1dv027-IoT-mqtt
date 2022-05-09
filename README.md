@@ -1,4 +1,4 @@
-# Steps for IoT Assignment
+# Steps to get MQTT data to influxdb
 
 ## Setting up MQTT on AWS
 
