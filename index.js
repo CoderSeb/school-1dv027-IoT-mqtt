@@ -6,12 +6,12 @@ dotenv.config()
 
 const main = () => {
   const token = process.env.INFLUXDB_TOKEN
-const url = 'https://eu-central-1-1.aws.cloud2.influxdata.com'
+const url = process.env.INFLUXDB_URL
 
 const influxClient = new InfluxDB({url, token})
 
-const host = '18.195.54.50'
-const port = 1883
+const host = process.env.MQTT_HOST
+const port = process.env.MQTT_PORT
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
 const connectionUrl = `mqtt://${host}:${port}`
@@ -25,18 +25,19 @@ const client = mqtt.connect(connectionUrl, {
   reconnectPeriod: 1000,
 })
 
-const topic = 'terraTemps'
+const topics = ['terraTemps/1', 'terraTemps/2']
 
 client.on('connect', () => {
   console.log('Connected')
-  client.subscribe([topic], () => {
-    console.log(`Subscribe to topic '${topic}'`)
+  client.subscribe(topics, () => {
+    console.log(`Subscribe to topics`)
   })
 })
 client.on('message', (topic, payload) => {
-  const sensor = payload.toString().split('--')[0]
-  const value = payload.toString().split('--')[1]
-  console.log(`Message received: ${sensor} - ${value}`)
+  const sensor = topic
+  const value = Number(payload.toString().split(':')[1]).toFixed(2)
+  console.log(value)
+  console.log(`Message received: ${sensor} - ${payload}`)
   let org = process.env.INFLUX_ORG
   let bucket = `terra_temps`
 
